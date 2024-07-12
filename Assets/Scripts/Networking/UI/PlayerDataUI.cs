@@ -1,6 +1,4 @@
-using System;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerDataUI : NetworkBehaviour
@@ -17,11 +15,13 @@ public class PlayerDataUI : NetworkBehaviour
         UpdateName(ApplicationController.PlayerName);
         _playerData = GetComponent<PlayerData>();
         _playerData.PlayerScore.OnValueChanged += UpdateScore;
+        SetPlayerNameServerRpc(ApplicationController.PlayerName);
         UpdateScore(0, _playerData.PlayerScore.Value);
     }
 
     public void UpdateName(string newValue)
     {
+        if(!IsClient)return;
         _playerNameText.text = newValue;
     }
 
@@ -35,5 +35,11 @@ public class PlayerDataUI : NetworkBehaviour
     {
         _currentPointsText.text = newValue.ToString();
 
+    }
+     [ServerRpc]
+    public void SetPlayerNameServerRpc(string name)
+    {
+        if(IsClient)return;
+          _playerNameText.text = name;
     }
 }
