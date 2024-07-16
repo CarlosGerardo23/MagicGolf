@@ -39,7 +39,7 @@ public class PlayerDataUI : NetworkBehaviour
      [ServerRpc]
     public void SetPlayerNameServerRpc(string name)
     {
-        if(IsClient)return;
+        if(!IsServer)return;
           _playerNameText.text = name;
     }
 }

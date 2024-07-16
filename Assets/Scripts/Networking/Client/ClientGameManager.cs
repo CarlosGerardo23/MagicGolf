@@ -42,7 +42,7 @@ public class ClientGameManager
         }
         ApplicationController.JoinCode = joinCode;
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        RelayServerData relayServerData = new RelayServerData(_allocation, "wss");
+        RelayServerData relayServerData = new RelayServerData(_allocation, "dtls");
         transport.SetRelayServerData(relayServerData);
 
         NetworkManager.Singleton.StartClient();

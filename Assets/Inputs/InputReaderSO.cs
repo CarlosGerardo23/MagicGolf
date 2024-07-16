@@ -9,19 +9,14 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
 {
     public event Action onHitBallStarted;
     public event Action onHitBallEnded;
-    public event Action<Vector2> onFingerMoved;
     public event Action onInteractEvent;
     private bool _startTouch = false;
 
     private InputSystem_Actions _inputActions;
-    public Vector2 TouchPosition => EnhancedTouch.Touch.fingers[0].screenPosition;
+    public Vector2 TouchPosition => Mouse.current.position.value;
     private void OnEnable()
     {
-        EnhancedTouch.TouchSimulation.Enable();
-        EnhancedTouch.EnhancedTouchSupport.Enable();
-        EnhancedTouch.Touch.onFingerDown += StartTouch;
-        EnhancedTouch.Touch.onFingerMove += MoveFinger;
-        EnhancedTouch.Touch.onFingerUp += StopTouch;
+
         _startTouch = false;
         if (_inputActions == null)
         {
@@ -29,15 +24,8 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
             _inputActions.Player.SetCallbacks(this);
         }
     }
-
-
     private void OnDisable()
     {
-        EnhancedTouch.TouchSimulation.Disable();
-        EnhancedTouch.EnhancedTouchSupport.Disable();
-        EnhancedTouch.Touch.onFingerDown -= StartTouch;
-        EnhancedTouch.Touch.onFingerMove -= MoveFinger;
-        EnhancedTouch.Touch.onFingerUp -= StopTouch;
         DisablePlayer();
     }
     public void EnablePlayer()
@@ -48,19 +36,14 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
     {
         _inputActions.Player.Disable();
     }
-    private void StartTouch(Finger finger)
+    private void StartTouch()
     {
         _startTouch = true;
         onHitBallStarted?.Invoke();
     }
-    private void MoveFinger(Finger finger)
-    {
-        if (!_startTouch) return;
-        onFingerMoved?.Invoke(finger.screenPosition);
-        //  Debug.Log($"finger position {finger.screenPosition}");
-    }
 
-    private void StopTouch(Finger finger)
+
+    private void StopTouch()
     {
         _startTouch = false;
         onHitBallEnded?.Invoke();
@@ -109,7 +92,10 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
 
     public void OnNext(InputAction.CallbackContext context)
     {
-        // throw new NotImplementedException();
+        if (context.phase == InputActionPhase.Performed)
+            StartTouch();
+        if (context.phase == InputActionPhase.Canceled)
+            StopTouch();
     }
 
     public void OnSprint(InputAction.CallbackContext context)

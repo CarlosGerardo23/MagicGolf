@@ -57,7 +57,6 @@ public class BallController : NetworkBehaviour
         _ballRB.isKinematic = true;
         _isBallSelected = false;
         _inputReader.onHitBallStarted += StartLaunch;
-        _inputReader.onFingerMoved += SetForceLaunch;
         _inputReader.onHitBallEnded += EndLaunch;
         onBallLaunch += BallLaunched;
         onBallStopped += BallStopped;
@@ -69,7 +68,6 @@ public class BallController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         if (!IsOwner) return;
-        _inputReader.onFingerMoved -= SetForceLaunch;
         _inputReader.onHitBallStarted -= StartLaunch;
         _inputReader.onHitBallEnded -= EndLaunch;
         onBallLaunch -= BallLaunched;
@@ -109,6 +107,10 @@ public class BallController : NetworkBehaviour
     }
     private void Update()
     {
+        if(_isBallSelected&&!_isBallLaunched)
+        {
+            SetBallPosition();
+        }
         if (_isBallLaunched)
         {
             _currentTimeLaunhing += Time.deltaTime;
